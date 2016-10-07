@@ -43,9 +43,24 @@ Mas quando temos dependência externa, por exemplo banco de dados ou API. Devemo
 
 **Mas por quê devemos isolar?**
 
-Vamos dizer que sua função pega informações que estão armazenadas em um banco NoSQL, no nosso exemplo será o redis.
+Vamos dizer que sua função precisa de informações que estão armazenadas em um banco NoSQL, no nosso exemplo será o redis.
+
+Função abaixo pede ao redis que exclua uma determinada chave.
+```
+# delete_key.py
+
+import redis
+
+def delete_key(key):
+    r = redis.StrictRedis(host='127.0.0.1', port=6379, db=0)
+    return r.delete(key)
+```
+No exemplo acima, vemos que foi aberta uma conexão com um banco de dados.
+
+Se eu criar um teste chamando essa função, irei precisar ter um banco de dados redis instalado e rodando na minha máquina, e como devemos evitar qualquer dependências externas nos nossos testes, a solução para esse problema é o uso do Mock.
 
 
+======================================
 # Exemplo de uma função acessando
 https://api.github.com/users/douglasbastos
 
