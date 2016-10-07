@@ -2,6 +2,7 @@
 
 Testar unitariamente é fácil, mas quando temos uma dependência externa no nosso código, a implementação do teste acaba demorando quando não sabemos usar direito os paranauês do mock.
 
+TODO
 *Explicar um pouco o que vai ser feito no artigo*
 
 Teste de unidade
@@ -41,7 +42,7 @@ Dependências externas
 ---
 Mas quando temos dependência externa, por exemplo banco de dados ou API. Devemos isolar o nosso código.
 
-**Mas por quê devemos isolar?**
+##### Mas por quê devemos isolar?
 
 Vamos dizer que sua função precisa de informações que estão armazenadas em um banco NoSQL, no nosso exemplo será o redis.
 
@@ -57,40 +58,15 @@ def delete_key(key):
 ```
 No exemplo acima, vemos que foi aberta uma conexão com um banco de dados.
 
-Se eu criar um teste chamando essa função, irei precisar ter um banco de dados redis instalado e rodando na minha máquina, e como devemos evitar qualquer dependências externas nos nossos testes, a solução para esse problema é o uso do Mock.
+##### O que temos de problema nessa abordagem?
 
+* É necessário ter um banco de dados redis instalado e rodando.
+* É necessário armazenar valores no redis antes de iniciar os testes.
 
-======================================
-# Exemplo de uma função acessando
-https://api.github.com/users/douglasbastos
+##### E como conseguimos testar?
 
-# Teste para essa função.
+```
+$ pip install mock
+```
 
-Ao executar esse teste sempre estaremos indo até a API do github pegando a informações e validando as informações.
-Mas existem vários problemas nessa implementação.
-
--Estaremos fazendo um request de verdade, tornando nosso teste mais demorado.
--Dependendo da frequência a própria API bloquear o acesso.
--Quando a API mudar qualquer informação ou mesmo ficar fora do ar, seu teste vai quebrar
-
-Quando temos esse tipo de situação utilizamos uma biblioteca chamada Mock
-
-# pip install mock
-
-Abaixo o exemplo da solução utilizando mock
-
-# Exemplo do teste utilizando mock
-
-# Explicar como funciona o mock no teste criado acima
-
-# Explicar como funciona a biblioteca mock
-
-# Mostrar outras formas de mockar um objeto(decorator, with, setUp)
-
-# Quando quero testar se uma função chamou outra função(call_count, call_arg_list, etc)
-
-# Quando quero testar uma lógica com dia de semana e dependo do datetime.now()
-
-# Quando quero testar uma requisição para uma API, e mockar os dados retornados por ela.
-
-# Mostrar os problemas que temos ao utilizar mocks
+##### Exemplo de uso
