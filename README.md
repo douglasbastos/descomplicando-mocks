@@ -70,3 +70,35 @@ $ pip install mock
 ```
 
 ##### Exemplo de uso
+
+
+======================================
+# Exemplo de uma função acessando
+https://api.github.com/users/douglasbastos
+
+- Teste para essa função.
+
+Ao executar esse teste sempre estaremos indo até a API do github pegando a informações e validando as informações.
+Mas existem vários problemas nessa implementação.
+
+-Estaremos fazendo um request de verdade, tornando nosso teste mais demorado.
+-Dependendo da frequência a própria API bloquear o acesso.
+-Quando a API mudar qualquer informação ou mesmo ficar fora do ar, seu teste vai quebrar
+
+Abaixo o exemplo da solução utilizando mock
+
+- Exemplo do teste utilizando mock
+
+- Explicar como funciona o mock no teste criado acima
+
+- Explicar como funciona a biblioteca mock
+
+- Mostrar outras formas de mockar um objeto(decorator, with, setUp)
+
+- Quando quero testar se uma função chamou outra função(call_count, call_arg_list, etc)
+
+- Quando quero testar uma lógica com dia de semana e dependo do datetime.now()
+
+- Quando quero testar uma requisição para uma API, e mockar os dados retornados por ela.
+
+- Mostrar os problemas que temos ao utilizar mocks
