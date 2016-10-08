@@ -72,4 +72,44 @@ No exemplo acima, vemos que foi aberta uma conexão com um banco de dados.
 $ pip install mock
 ```
 
-##### Exemplo de uso
+```
+from  unittest import TestCase
+import mock
+
+from example.delete_key import delete_key
+
+class DeleteKeyTest(TestCase):
+
+    @mock.patch('example.delete_key.redis')
+    def test_remove_chave(self, redis):
+        delete_key('1234')
+        self.assertTrue(redis.StrictRedis.return_value.delete.called)
+```
+
+Observe que chamamos o mock a partir de um decorator, passando o caminho do arquivo até chegar no objeto que queremos mockar, nesse exemplo é o redis.
+
+Existe mais duas formas de criar esse mock.
+class DeleteKeyTest(TestCase):
+
+```
+class DeleteKeyTest(TestCase):
+
+    def test_remove_chave(self):
+        with mock.patch('example.delete_key.redis') as redis:
+            delete_key('1234')
+            self.assertTrue(redis.StrictRedis.return_value.delete.called)
+```
+Utilizando with, onde não temos diferença na execução
+
+```
+class DeleteKeyTest(TestCase):
+
+    @classmethod
+    def setUp(cls)
+        self.redis_patcher = mock.patch('example.delete_key.redis')
+        self.redis = self.patcher.start()
+
+    def test_remove_chave(self):
+            delete_key('1234')
+            self.assertTrue(self.redis.StrictRedis.return_value.delete.called)
+```
