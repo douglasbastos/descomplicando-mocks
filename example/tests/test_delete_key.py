@@ -1,9 +1,9 @@
-import unittest
+from  unittest import TestCase
 import mock
 
 from example.delete_key import delete_key
 
-class DeleteKeyTest(unittest.TestCase):
+class DeleteKeyTest(TestCase):
 
     @mock.patch('example.delete_key.redis')
     def test_remove_chave(self, redis):
