@@ -28,14 +28,17 @@ class SomaTest(unittest.TestCase):
     def test_soma_certa(self):
         result = soma(2, 2)
         self.assertEqual(result, 4)
-
-
-if __name__ == '__main__':
-    unittest.main()
 ```
 
+Rodando o teste
 ```
 $ python -m unittest test_simple
+```
+
+Você poderá visualizar todo o código do artigo no [github](https://github.com/douglasbastos/descomplicando-mocks), para executar os testes a partir de lá só será necessário modificar o caminho do arquivo, ficando por exemplo:
+
+```
+$ python -m unittest example.tests.test_simple
 ```
 
 Dependências externas
