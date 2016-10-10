@@ -72,25 +72,55 @@ No exemplo acima, vemos que foi aberta uma conexão com um banco de dados.
 $ pip install mock
 ```
 
-```
-from  unittest import TestCase
-import mock
+Ou utilizando versões superiores à python3.3 ele vem por padrão dentro da biblioteca unittest
 
-from example.delete_key import delete_key
+```
+from unittest import mock
+```
+
+##### Mas o que essa biblioteca faz?
+Ele permite que você substituia partes de seu sistema na execução de testes, adicionando valores fictícios. Assim simulando comunicações externas.
+
+Vamos utilizar a função criada anteriomente e vamos isolar a parte onde ocorre comunicação com o Redis.
+
+```
+from unittest import TestCase, mock
+
+from delete_key import delete_key
 
 class DeleteKeyTest(TestCase):
 
-    @mock.patch('example.delete_key.redis')
+    @mock.patch('delete_key.redis')
     def test_remove_chave(self, redis):
         delete_key('1234')
         self.assertTrue(redis.StrictRedis.return_value.delete.called)
 ```
 
-Observe que chamamos o mock a partir de um decorator, passando o caminho do arquivo até chegar no objeto que queremos mockar, nesse exemplo é o redis.
+Ao utilizar o decorator mock.patch, devemos passar o caminho do objeto que queremos isolar, normalmente o caminho do arquivo desde a raiz do projeto, até o objeto que está dentro do arquivo.
 
-Existe mais duas formas de criar esse mock.
-class DeleteKeyTest(TestCase):
+Para o melhor entendimento, abaixo está o retorno quando chamamos diretamente o redis, e quando estamos mockando
 
+```
+>>> import redis
+>>> redis
+<module 'redis' from '/home/douglasbastos/.virtualenvs/jobs/local/lib/python2.7/site-packages/redis/__init__.pyc'>
+```
+Sem o uso de mock.
+
+```
+>>> import redis
+>>> from mock import Mock
+
+>>> redis = Mock()
+>>> redis
+<Mock id='139814111313872'>
+```
+Utilizando a biblioteca mock
+
+
+**Existe outras formas de mocks objetos.**
+
+Utilizando with, onde não temos diferença na execução
 ```
 class DeleteKeyTest(TestCase):
 
@@ -99,13 +129,13 @@ class DeleteKeyTest(TestCase):
             delete_key('1234')
             self.assertTrue(redis.StrictRedis.return_value.delete.called)
 ```
-Utilizando with, onde não temos diferença na execução
+
+No setup onde mockamos apenas uma vez e seu valor é válido para todos os testes dentro daquela classe.
 
 ```
 class DeleteKeyTest(TestCase):
 
-    @classmethod
-    def setUp(cls)
+    def setUp(self)
         self.redis_patcher = mock.patch('example.delete_key.redis')
         self.redis = self.patcher.start()
 
