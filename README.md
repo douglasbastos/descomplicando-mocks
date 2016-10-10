@@ -100,12 +100,15 @@ Ao utilizar o decorator mock.patch, devemos passar o caminho do objeto que quere
 
 Para o melhor entendimento, abaixo está o retorno quando chamamos diretamente o redis, e quando estamos mockando
 
+Sem o uso de mock.
+
 ```
 >>> import redis
 >>> redis
 <module 'redis' from '/home/douglasbastos/.virtualenvs/jobs/local/lib/python2.7/site-packages/redis/__init__.pyc'>
 ```
-Sem o uso de mock.
+
+Utilizando a biblioteca mock
 
 ```
 >>> import redis
@@ -115,8 +118,6 @@ Sem o uso de mock.
 >>> redis
 <Mock id='139814111313872'>
 ```
-Utilizando a biblioteca mock
-
 
 **Existe outras formas de mocks objetos.**
 
