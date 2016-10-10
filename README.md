@@ -119,9 +119,9 @@ Utilizando a biblioteca mock
 <Mock id='139814111313872'>
 ```
 
-**Existe outras formas de mocks objetos.**
+**Existem outras sintax na hora da implementação.**
 
-Utilizando with, onde não temos diferença na execução
+Utilizando with, onde não temos diferença na execução.
 ```
 class DeleteKeyTest(TestCase):
 
