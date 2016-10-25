@@ -28,14 +28,17 @@ class SomaTest(unittest.TestCase):
     def test_soma_certa(self):
         result = soma(2, 2)
         self.assertEqual(result, 4)
-
-
-if __name__ == '__main__':
-    unittest.main()
 ```
 
+Rodando o teste
 ```
 $ python -m unittest test_simple
+```
+
+Você poderá visualizar todo o código do artigo no [github](https://github.com/douglasbastos/descomplicando-mocks), para executar os testes a partir de lá só será necessário modificar o caminho do arquivo, ficando por exemplo:
+
+```
+$ python -m unittest example.tests.test_simple
 ```
 
 Dependências externas
@@ -69,36 +72,151 @@ No exemplo acima, vemos que foi aberta uma conexão com um banco de dados.
 $ pip install mock
 ```
 
-##### Exemplo de uso
+Ou utilizando versões superiores à python3.3 ele vem por padrão dentro da biblioteca unittest
+
+```
+from unittest import mock
+```
+
+##### Mas o que essa biblioteca faz?
+Ele permite que você substituia partes de seu sistema na execução de testes, adicionando valores fictícios. Assim simulando comunicações externas.
+
+Vamos utilizar a função criada anteriomente e vamos isolar a parte onde ocorre comunicação com o Redis.
+
+```
+from unittest import TestCase, mock
+
+from delete_key import delete_key
+
+class DeleteKeyTest(TestCase):
+
+    @mock.patch('delete_key.redis')
+    def test_remove_chave(self, redis):
+        delete_key('1234')
+        self.assertTrue(redis.StrictRedis.return_value.delete.called)
+```
+
+Ao utilizar o decorator mock.patch, devemos passar o caminho do objeto que queremos isolar, normalmente o caminho do arquivo desde a raiz do projeto, até o objeto que está dentro do arquivo.
+
+Para o melhor entendimento, abaixo está o retorno quando chamamos diretamente o redis, e quando estamos mockando
+
+Sem o uso de mock.
+
+```
+>>> import redis
+>>> redis
+<module 'redis' from '/home/douglasbastos/.virtualenvs/jobs/local/lib/python2.7/site-packages/redis/__init__.pyc'>
+```
+
+Utilizando a biblioteca mock
+
+```
+>>> import redis
+>>> from mock import Mock
+
+>>> redis = Mock()
+>>> redis
+<Mock id='139814111313872'>
+```
+
+**Existem outras sintax na hora da implementação.**
+
+Utilizando with, onde não temos diferença na execução.
+```
+class DeleteKeyTest(TestCase):
+
+    def test_remove_chave(self):
+        with mock.patch('example.delete_key.redis') as redis:
+            delete_key('1234')
+            self.assertTrue(redis.StrictRedis.return_value.delete.called)
+```
+
+No setup onde mockamos apenas uma vez e seu valor é válido para todos os testes dentro daquela classe.
+
+```
+class DeleteKeyTest(TestCase):
+
+    def setUp(self)
+        self.redis_patcher = mock.patch('example.delete_key.redis')
+        self.redis = self.patcher.start()
+
+    def test_remove_chave(self):
+            delete_key('1234')
+            self.assertTrue(self.redis.StrictRedis.return_value.delete.called)
+```
+
+Utilizando ```mock.patch('caminho.objeto')``` passamos uma string do caminho relativo do objeto que queremos mockar, mas podemos utilizar ```mock.patch.object(Class, 'method')``` quando queremos mockar ao expecifico de dentro de uma class.
+
+```
+ -- Exemplo utilizando mock.patch.object(Class, 'method')
+```
+
+Podemos simular um valor de retorno quando necessário, fazemos isso utilizando ```return_value```
+
+```
+# helper.py
+import redis
 
 
-======================================
-# Exemplo de uma função acessando
-https://api.github.com/users/douglasbastos
+def get_value(key):
+    r = redis.StrictRedis(host='127.0.0.1', port=6379, db=0)
+    return r.get(key)
 
-- Teste para essa função.
 
-Ao executar esse teste sempre estaremos indo até a API do github pegando a informações e validando as informações.
-Mas existem vários problemas nessa implementação.
+def is_positive_number(key):
+    if get_value(key) >= 1:
+        return True
+    return False
 
--Estaremos fazendo um request de verdade, tornando nosso teste mais demorado.
--Dependendo da frequência a própria API bloquear o acesso.
--Quando a API mudar qualquer informação ou mesmo ficar fora do ar, seu teste vai quebrar
+```
 
-Abaixo o exemplo da solução utilizando mock
+Acima estamos criando uma função que ao receber uma chave, ele consulta o banco redis e depois de pegar essa informação ele verifica se é positivo ou negativo.
 
-- Exemplo do teste utilizando mock
+Para testar isso precisamos simular um valor de retorno para o ```get_value```. Faremos isso no teste abaixo
 
-- Explicar como funciona o mock no teste criado acima
 
-- Explicar como funciona a biblioteca mock
+```
+from unittest import TestCase, mock
 
-- Mostrar outras formas de mockar um objeto(decorator, with, setUp)
+from helper import get_value, is_positive_number
 
-- Quando quero testar se uma função chamou outra função(call_count, call_arg_list, etc)
 
-- Quando quero testar uma lógica com dia de semana e dependo do datetime.now()
+class IsNumberPositiveTest(TestCase):
 
-- Quando quero testar uma requisição para uma API, e mockar os dados retornados por ela.
+    @mock.patch('helper.get_value', return_value=4)
+    def test_deve_retornar_true_quando_numero_positivo(self, redis):
+        result = is_positive_number('key')
+        self.assertTrue(result)
 
-- Mostrar os problemas que temos ao utilizar mocks
+
+    @mock.patch.object('helper.get_value', return_value=-4)
+    def test_deve_retornar_false_quando_numero_negativo(self, redis):
+        result = is_positive_number('key')
+        self.assertFalse(result)
+```
+
+Passamos um segundo argumento dentro do decorator, simulamos o valor que será retornado pelo ```get_value```. Dessa forma quando o ```is_positive_number``` chama get_value, o mesmo não é executado, somente retorna o valor de ```return_value```.
+
+Quando o retorno é um Exception, podemos utilizar o ```side_effect``` como o exemplo abaixo.
+
+```
+ -- Exemplo de side_effect
+```
+
+Você pode ter observado no primeiro teste realizado nesse artigo temos um ```assert(delete.called)```, esse called é um dos diversos métodos que nos ajudam a testar dentro da Python. Por exemplo o ```called``` como o próprio nome diz, confere se a função delete que foi mockada foi chamada em algum momento.
+
+São diversos métodos dentro de mock que podem nos ajudar nesse quesito, demostrarei alguma deles.
+
+######  call_args
+
+######  call_args_list
+
+######  call_count
+
+######  assert_called_with
+
+######  assert_called_once_with
+
+######  assert_any_call
+
+######  Conclusão

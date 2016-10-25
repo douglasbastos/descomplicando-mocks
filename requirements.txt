@@ -1,0 +1,6 @@
+pytest
+responses
+requests
+freezegun
+ipdb
+ipython
