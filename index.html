@@ -28,14 +28,15 @@
 
             <section>
                 <h3>Quem sou</h3>
-                <br/>
-                <p>// Fala sobre mim :(</p>
+                <p>Douglas Bastos</p>
+                <p>Programador python e outras modinhas</p>
+                <p>Sieve</p>
+                <p>Twitter</p>
+                <p>Github</p>
             </section>
 
             <section>
-                <h3>Cronograma</h3>
-                <br/>
-                <p>// Ordem do que vai ser falado</p>
+                <h3>Por que falar sobre testes e mocks</h3>
             </section>
 
             <section data-markdown class="fragments">
@@ -82,7 +83,8 @@
             </section>
 
             <section data-markdown>
-                ## Dependências externas - Cenário 1
+                ## Dependências externas
+                ### Cenário 1
                 ```python
                 def enviar_conteudo_aws(msg, filename):
                     upload_aws(msg, filename)
@@ -91,6 +93,36 @@
 
             <section data-markdown class="fragments">
                 ## Mock
+            </section>
+
+            <section data-markdown>
+                ## Usando Mock - Cenário 1
+                ```python
+                class SendContentTeste(TestCase):
+
+                    def test_send_content(self):
+                        with mock.patch('example.cenario1.upload_aws') as upload_aws:
+                            send_content('Hello Word', 'helloword.txt')
+                            upload_aws.assert_called_with('Hello Word', 'helloword.txt')
+                ```
+            </section>
+
+            <section data-markdown>
+                ## Console
+                ```
+                > import upload_aws
+                > upload_aws
+                function upload_aws at 0x7f2e219be378
+                ```
+
+                ```
+                > import upload_aws
+                > from mock import Mock
+
+                > upload_aws = Mock()
+                > upload_aws
+                MagicMock name='upload_aws' id='139775112511728'
+                ```
             </section>
 
             <section data-markdown class="fragments">
@@ -113,42 +145,12 @@
                 ```
             </section>
 
-            <section data-markdown>
-                ## Usando Mock - Cenário 1
-                ```python
-                class SendContentTeste(TestCase):
-
-                    def test_send_content(self):
-                        with mock.patch('example.cenario1.upload_aws') as upload_aws:
-                            send_content('Hello Word', 'helloword.txt')
-                            upload_aws.assert_called_with('Hello Word', 'helloword.txt')
-                ```
-            </section>
-
             <section data-markdown class="fragments">
                 ## O que o mock faz
                 - Simula comportamento de objetos
                 - Isola dependências externas
                 - Possibilita asserções
                 - Menos Estado mais Colaboração (Foco no domínio)
-            </section>
-
-            <section data-markdown>
-                ## Console
-                ```
-                > import upload_aws
-                > upload_aws
-                function upload_aws at 0x7f2e219be378
-                ```
-
-                ```
-                > import upload_aws
-                > from mock import Mock
-
-                > upload_aws = Mock()
-                > upload_aws
-                MagicMock name='upload_aws' id='139775112511728'
-                ```
             </section>
 
             <section data-markdown>
