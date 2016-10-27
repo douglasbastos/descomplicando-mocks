@@ -2,19 +2,430 @@
 <html lang="pt-br">
 <head>
     <meta charset="utf-8">
-    <title>Hello world</title>
+    <title>Descomplicando os mocks</title>
     <link rel="stylesheet" href="css/reveal.css">
-    <link rel="stylesheet" href="css/theme/default.css" id="theme">
+    <link rel="stylesheet" href="css/theme/simple.css" id="theme">
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+    <style>
+        .reveal h1, .reveal h2, .reveal h3,
+        .reveal h4, .reveal h5{
+            margin: 0 0 4rem;
+        }
+        .reveal ul {
+            list-style-type: none;
+        }
+    </style>
 </head>
 <body>
     <div class="reveal">
         <div class="slides">
             <section>
-                <h3>Descomplicando os mocks</h3>
+                <h2>Descomplicando os mocks</h2>
+                <br/>
                 <p>PythonRio XIV</p>
                 <p>29 de Outubro de 2016</p>
             </section>
-            <section data-background="#dddddd">
+
+            <section>
+                <h3>Quem sou</h3>
+                <br/>
+                <p>// Fala sobre mim :(</p>
+            </section>
+
+            <section>
+                <h3>Cronograma</h3>
+                <br/>
+                <p>// Ordem do que vai ser falado</p>
+            </section>
+
+            <section data-markdown class="fragments">
+                ## Por que testamos
+                - Garantir que o sistema faça o que deveria fazer.
+            </section>
+
+            <section data-markdown class="fragments">
+                ## Testes manuais
+                - Testar o sistema inteiro é trabalhoso.
+                - Retrabalho
+                - Existem testes que são humanamente impossíveis realizá-los
+                    - Teste de carga
+            </section>
+
+            <section data-markdown class="fragments">
+                ## Testes automatizados
+                - Evita trabalho repetitivo
+                - Conseguimos testar um sistema completo em segundos.
+                - Criamos soluções para ajudar pessoas, por que não nos ajudar também?
+            </section>
+
+            <section data-markdown class="fragments">
+                ## Então temos que parar de fazer testes manuais?
+                - # NÃO
+            </section>
+
+            <section data-markdown>
+                ## Função soma
+                ```python
+                def soma(num1, num2):
+                    return num1 + num2
+                ```
+            </section>
+
+            <section data-markdown>
+                ## Teste unitário
+                ```python
+                class SomaTest(TestCase):
+
+                def test_deve_retorna_quatro_quando_enviar_dois_mais_dois(self):
+                    self.assertEqual(soma(2, 2), 4)
+                ```
+            </section>
+
+            <section data-markdown>
+                ## Dependências externas - Cenário 1
+                ```python
+                def enviar_conteudo_aws(msg, filename):
+                    upload_aws(msg, filename)
+                ```
+            </section>
+
+            <section data-markdown class="fragments">
+                ## Mock
+            </section>
+
+            <section data-markdown class="fragments">
+                ## Mock
+                Nativo no python 3
+                ```python
+                from unittest import mock
+                ```
+            </section>
+
+            <section data-markdown class="fragments">
+                ## Mock
+                Instalável no python 2
+                ```
+                pip install mock
+                ```
+
+                ```python
+                import mock
+                ```
+            </section>
+
+            <section data-markdown>
+                ## Usando Mock - Cenário 1
+                ```python
+                class SendContentTeste(TestCase):
+
+                    def test_send_content(self):
+                        with mock.patch('example.cenario1.upload_aws') as upload_aws:
+                            send_content('Hello Word', 'helloword.txt')
+                            upload_aws.assert_called_with('Hello Word', 'helloword.txt')
+                ```
+            </section>
+
+            <section data-markdown class="fragments">
+                ## O que o mock faz
+                - Simula comportamento de objetos
+                - Isola dependências externas
+                - Possibilita asserções
+                - Menos Estado mais Colaboração (Foco no domínio)
+            </section>
+
+            <section data-markdown>
+                ## Console
+                ```
+                > import upload_aws
+                > upload_aws
+                function upload_aws at 0x7f2e219be378
+                ```
+
+                ```
+                > import upload_aws
+                > from mock import Mock
+
+                > upload_aws = Mock()
+                > upload_aws
+                MagicMock name='upload_aws' id='139775112511728'
+                ```
+            </section>
+
+            <section data-markdown>
+                ## Sintax mock
+                ```python
+                class SendContentTeste(TestCase):
+
+                    @mock.patch('example.cenario1.upload_aws')
+                    def test_send_content_sintax2(self, upload_aws):
+                        send_content('Hello Word', 'helloword.txt')
+                        upload_aws.assert_called_with('Hello Word', 'helloword.txt')
+                ```
+            </section>
+
+            <section data-markdown>
+                ## Sintax mock
+                ```python
+                class SendContentUsingPatchTeste(TestCase):
+
+                    def setUp(self):
+                        self.upload_aws_patcher = mock.patch('example.cenario1.upload_aws')
+                        self.upload_aws = self.upload_aws_patcher.start()
+
+                    def tearDown(self):
+                        self.upload_aws_patcher.stop()
+
+                    def test_send_content(self):
+                        send_content('Hello Word', 'helloword.txt')
+                        self.upload_aws.assert_called_with('Hello Word', 'helloword.txt')
+
+                ```
+            </section>
+
+            <section data-markdown>
+                ## Cenário 2
+                #### Acessar o Redis para pegar o valor contido em uma determinada chave, e retornar se o valor é positivo.
+
+                ```python
+                def is_positive(key):
+                    if get_value(key) >= 1:
+                        return True
+                    return False
+                ```
+            </section>
+
+
+            <section data-markdown>
+                ## Cenário 2
+
+                ```python
+                class IsNumberPositiveTest(TestCase):
+
+                    def test_deve_retornar_true_quando_numero_positivo(self):
+                        with mock.patch('example.cenario2.get_value', return_value=4):
+                            result = is_positive('key')
+                            self.assertTrue(result)
+
+                    def test_deve_retornar_false_quando_numero_nao_for_positivo(self):
+                        with mock.patch('example.cenario2.get_value', return_value=-4):
+                            result = is_positive('key')
+                            self.assertFalse(result)
+                ```
+            </section>
+
+            <section data-markdown>
+                ## Cenário 3
+                #### Ver informações de um evento, se usuário tiver permissão para essa operação.
+
+                ```python
+                def tem_permissao(user, permissao):
+                    user = UserHasPermission.objects.filter(user=user, permissao=permissao)
+                    if user:
+                        return True
+                    else:
+                        raise NotPermission
+
+
+                def info_evento(key):
+                    events = {'pythonrio': 'Rio de Janeiro',
+                              'pythonbrasil2016': 'Florianópolois',
+                              'pythonbrasil2017': 'Belo Horizonte',
+                              'pythonsudeste2017': 'Rio de Janeiro'}
+                    try:
+                        permissao = tem_permissao(user='douglasbastos',
+                                                  permissao='ver_eventos')
+                        if permissao:
+                            return events.get(key, 'Nenhum evento encontrado')
+                    except Exception:
+                        return 'Você não tem permissão para essa operação'
+
+                ```
+            </section>
+
+
+            <section data-markdown>
+                ## Cenário 3
+
+                ```python
+                class VerEventosTest(TestCase):
+
+                    def test_deve_mostrar_evento_se_usuario_tiver_permissao(self):
+                        with mock.patch('example.cenario3.tem_permissao', return_value=True):
+                            self.assertEqual(info_evento('pythonrio'), 'Rio de Janeiro')
+
+                    def test_nao_deve_mostrar_evento_se_usuario_nao_tiver_permissao(self):
+                        with mock.patch('example.cenario3.tem_permissao', side_effect=NotPermission):
+                            self.assertEqual(info_evento('pythonrio'), 'Você não tem permissão para essa operação')
+                ```
+            </section>
+
+            <section data-markdown>
+                ## Cenário 4
+                #### Remove uma lista de arquivos
+
+                ```python
+                def remove_files(files):
+                    for file in files:
+                        os.remove(file)
+
+                ```
+            </section>
+
+
+            <section data-markdown>
+                ## Cenário 4
+
+                ```python
+                class RemoveFilesTest(TestCase):
+
+                    def test_deve_remover_arquivos(self):
+                        lista_arquivos = ['abc.txt', 'xyz.txt', 'def.txt']
+                        with mock.patch.object(os, 'remove') as remove:
+                            remove_files(lista_arquivos)
+                            # Quantas vezes remove foi chamada
+                            self.assertEqual(3, remove.call_count)
+                            # Verifica argumentos passada a cada chamada
+                            self.assertEqual(
+                                [mock.call('abc.txt'), mock.call('xyz.txt'), mock.call('def.txt')],
+                                remove.call_args_list)
+
+                ```
+            </section>
+
+            <section>
+                <section data-markdown>
+                    ##### Algumas asserções
+                    - assert_called_with
+                    - assert_called_once_with
+                    - assert_any_call
+                    - assert_not_called
+                </section>
+
+                <section data-markdown>
+                ##### Outros objetos que ajudam na hora do teste
+                - called
+                - call_count
+                - call_args
+                - call_args_list
+                </section>
+
+                <section data-markdown>
+                ##### Mais detalhes
+                [Documentação do Mock](https://docs.python.org/3/library/unittest.mock.html)
+                </section>
+            </section>
+
+            <section data-markdown>
+                ## Cenário 5
+                #### Saudar o usuário dependendo da hora do dia
+
+                ```python
+                def saudacao():
+                    current_time = datetime.datetime.now()
+
+                    if current_time.hour < 12:
+                        msg = 'Bom dia'
+                    elif current_time.hour < 18:
+                        msg = 'Boa tarde'
+                    else:
+                        msg = 'Boa noite'
+
+                    return msg
+
+                ```
+            </section>
+
+            <section data-markdown>
+                pip install freezegun
+            </section>
+
+            <section data-markdown>
+                ## Cenário 5
+
+                ```python
+                class SaudacaoTest(TestCase):
+
+                    @freeze_time("2016-01-01 00:00:00")
+                    def test_deve_retornar_bom_dia(self):
+                        self.assertEqual(saudacao(), 'Bom dia')
+
+                    @freeze_time("2016-01-01 12:00:00")
+                    def test_deve_retornar_boa_tarde(self):
+                        self.assertEqual(saudacao(), 'Boa tarde')
+
+                    @freeze_time("2016-01-01 18:00:00")
+                    def test_deve_retornar_boa_noite(self):
+                        self.assertEqual(saudacao(), 'Boa noite')
+                ```
+            </section>
+
+            <section data-markdown>
+                ## Cenário 6
+
+                ```python
+                def pega_informacoes_usuario_github(username):
+                    url_api = 'https://api.github.com/users/{}'.format(username)
+                    response = requests.get(url_api)
+                    if response.status_code == 200:
+                        content = json.loads(response.content.decode('utf-8'))
+                        return content
+                    else:
+                        return 'Usuário não existe'
+                ```
+            </section>
+
+            <section data-markdown>
+                pip install responses
+            </section>
+
+            <section>
+                <section data-markdown>
+                ## Cenário 6
+
+                ```python
+                class PegaInformacoesUsuarioGitHubTest(TestCase):
+
+                    @responses.activate
+                    def test_deve_retornar_informacoes_do_usuario_caso_ele_exista(self):
+                        info = {'location': 'Rio de Janeiro'}
+                        url_api = 'https://api.github.com/users/douglas'
+                        responses.add(responses.GET, url_api, json=info, status=200)
+
+                        result = pega_informacoes_usuario_github('douglas')
+                        self.assertDictEqual(result, info)
+                ```
+                </section>
+
+                <section data-markdown>
+                ```
+                    @responses.activate
+                    def test_deve_retornar_mensagem_de_nao_encontrado_caso_usuario_nao_exista(self):
+                        username = 'douglasbastos'
+                        url_api = 'https://api.github.com/users/douglas'
+                        responses.add(responses.GET, url_api,
+                                      body='{"error": "not found"}', status=404)
+
+                        result = pega_informacoes_usuario_github('douglas')
+                        self.assertEqual(result, 'Usuário não existe')
+                ```
+                </section>
+            </section>
+
+            <section data-markdown>
+                ## Concluir =D!
+            </section>
+
+            <section>
+                Dúvidas?
+            </section>
+
+            <section data-markdown>
+                ## Obrigado!
+
+                // Deixar minhas redes aqui
+            </section>
+
+<!--             <section data-background="#dddddd">
                 <h2>Slide Backgrounds</h2>
                 <p>
                     Set <code>data-background="#dddddd"</code> on a slide to change the background color. All CSS color formats are supported.
@@ -22,20 +433,48 @@
                 <a href="#" class="navigate-down">
                     <img width="178" height="238" data-src="https://s3.amazonaws.com/hakim-reveal-js/arrow.png" alt="Down arrow">
                 </a>
-            </section>
+            </section> -->
         </div>
     </div>
 <script src="lib/js/head.min.js"></script>
 <script src="js/reveal.js"></script>
 <script>
 
-    // More info https://github.com/hakimel/reveal.js#configuration
-    Reveal.initialize({
-        controls: true, // mostra as setinhas na parte inferior
-        progress: true, // mostra uma barra de progresso
-        center: true, // centraliza os slides
-        transition: 'slide' // none/fade/slide/convex/concave/zoom
-    });
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+        // transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+        transition: 'zoom',
+
+        // Parallax scrolling
+        // parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+        // parallaxBackgroundSize: '2100px 900px',
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+        { src: 'lib/js/classList.js',
+          condition: function() { return !document.body.classList; } },
+        { src: 'plugin/markdown/marked.js',
+          condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+        { src: 'plugin/markdown/markdown.js',
+          condition: function() { return !!document.querySelector( '[data-markdown]' ); },
+          callback: function() {
+            Array.prototype.forEach.call(
+            document.querySelectorAll('section.fragments > ul > li'),
+              function(ele){ ele.className = 'fragment roll-in'; });
+            } },
+        { src: 'plugin/highlight/highlight.js', async: true,
+          callback: function() { hljs.initHighlightingOnLoad(); } },
+        { src: 'plugin/zoom-js/zoom.js', async: true,
+          condition: function() { return !!document.body.classList; } },
+        { src: 'plugin/notes/notes.js', async: true,
+          condition: function() { return !!document.body.classList; } }
+        ]
+      });
 </script>
 </body>
 </html>
