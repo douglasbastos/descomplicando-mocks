@@ -30,13 +30,25 @@
                 <h3>Quem sou</h3>
                 <p>Douglas Bastos</p>
                 <p>Programador python e outras modinhas</p>
+                <p>https://twitter.com/douglasbastosok</p>
+                <p>https://github.com/douglasbastos</p>
+                <br/>
                 <p>Sieve</p>
-                <p>Twitter</p>
-                <p>Github</p>
+            </section>
+
+            <section>
+                <h3>http://bit.ly/slide_descomplicando_mock</h3>
+                <h3>http://bit.ly/github_descomplicando_mock</h3>
             </section>
 
             <section>
                 <h3>Por que falar sobre testes e mocks</h3>
+            </section>
+
+            <section>
+                <h2>Ciclo de desenvolvimento</h2>
+                    <img width="100%" height="500px"
+                    data-src="img/ciclo-de-vida-software.jpg" alt="Down arrow">
             </section>
 
             <section data-markdown class="fragments">
@@ -61,8 +73,14 @@
 
             <section data-markdown class="fragments">
                 ## Então temos que parar de fazer testes manuais?
-                - # NÃO
+                - ### NÃO
+                - Mas deve ter a principal fatia na ciclo de execução de teste
             </section>
+
+            <section data-markdown class="fragments">
+                ## Cenários a seguir estão focados na execução de testes unitários
+            </section>
+
 
             <section data-markdown>
                 ## Função soma
@@ -85,9 +103,12 @@
             <section data-markdown>
                 ## Dependências externas
                 ### Cenário 1
+                #### Remove uma lista de arquivos
+
                 ```python
-                def enviar_conteudo_aws(msg, filename):
-                    upload_aws(msg, filename)
+                def remove_files(files):
+                    for file in files:
+                        os.remove(file)
                 ```
             </section>
 
@@ -97,31 +118,33 @@
 
             <section data-markdown>
                 ## Usando Mock - Cenário 1
-                ```python
-                class SendContentTeste(TestCase):
 
-                    def test_send_content(self):
-                        with mock.patch('example.cenario1.upload_aws') as upload_aws:
-                            send_content('Hello Word', 'helloword.txt')
-                            upload_aws.assert_called_with('Hello Word', 'helloword.txt')
+                ```python
+                class RemoveFilesTest(TestCase):
+
+                    def test_deve_remover_arquivos(self):
+                        lista_arquivos = ['abc.txt', 'xyz.txt', 'def.txt']
+                        with mock.patch.object(os, 'remove') as remove:
+                            remove_files(lista_arquivos)
+                            self.assertEqual(3, remove.call_count)
                 ```
             </section>
 
             <section data-markdown>
                 ## Console
                 ```
-                > import upload_aws
-                > upload_aws
-                function upload_aws at 0x7f2e219be378
+                > import os
+                > os
+                module 'os' from '/home/douglas/.env/descomplicando-mocks/lib/python3.4/os.py'
                 ```
 
                 ```
-                > import upload_aws
+                > import os
                 > from mock import Mock
 
-                > upload_aws = Mock()
-                > upload_aws
-                MagicMock name='upload_aws' id='139775112511728'
+                > os = Mock()
+                > os
+                MagicMock id='139775112511728'
                 ```
             </section>
 
@@ -156,36 +179,68 @@
             <section data-markdown>
                 ## Sintax mock
                 ```python
-                class SendContentTeste(TestCase):
+                class RemoveFilesTest(TestCase):
 
-                    @mock.patch('example.cenario1.upload_aws')
-                    def test_send_content_sintax2(self, upload_aws):
-                        send_content('Hello Word', 'helloword.txt')
-                        upload_aws.assert_called_with('Hello Word', 'helloword.txt')
+                    @with mock.patch.object(os, 'remove'):
+                    def test_deve_remover_arquivos(self, remove):
+                        lista_arquivos = ['abc.txt', 'xyz.txt', 'def.txt']
+                        remove_files(lista_arquivos)
+                        self.assertEqual(3, remove.call_count)
                 ```
             </section>
 
             <section data-markdown>
                 ## Sintax mock
                 ```python
-                class SendContentUsingPatchTeste(TestCase):
+                class RemoveFilesUsingPatchTest(TestCase):
 
                     def setUp(self):
-                        self.upload_aws_patcher = mock.patch('example.cenario1.upload_aws')
-                        self.upload_aws = self.upload_aws_patcher.start()
+                        self.remove_patcher = with mock.patch.object(os, 'remove')
+                        self.remove = self.remove_patcher.start()
 
                     def tearDown(self):
-                        self.upload_aws_patcher.stop()
+                        self.remove_patcher.stop()
 
                     def test_send_content(self):
-                        send_content('Hello Word', 'helloword.txt')
-                        self.upload_aws.assert_called_with('Hello Word', 'helloword.txt')
+                        lista_arquivos = ['abc.txt', 'xyz.txt', 'def.txt']
+                        remove_files(lista_arquivos)
+                        self.assertEqual(3, self.remove.call_count)
 
                 ```
             </section>
 
             <section data-markdown>
                 ## Cenário 2
+                #### Enviar conteúdo para aws
+                ```python
+                def enviar_conteudo_aws(filename, body):
+                    upload_aws(filename, body)
+                ```
+            </section>
+
+            <section data-markdown>
+                ## Cenário 2
+                ```python
+                class SendContentTeste(TestCase):
+
+                    def test_send_content(self):
+                        with mock.patch('example.cenario1.upload_aws') as upload_aws:
+                            send_content('helloword.txt', 'Hello Word')
+                            upload_aws.assert_called_with('helloword.txt', 'Hello Word')
+                ```
+            </section>
+
+            <section data-markdown>
+                ```python
+                mock.patch('example.cenario1.upload_aws')
+                ```
+                ```python
+                mock.patch.object(os, 'remove')
+                ```
+            </section>
+
+            <section data-markdown>
+                ## Cenário 3
                 #### Acessar o Redis para pegar o valor contido em uma determinada chave, e retornar se o valor é positivo.
 
                 ```python
@@ -198,7 +253,7 @@
 
 
             <section data-markdown>
-                ## Cenário 2
+                ## Cenário 3
 
                 ```python
                 class IsNumberPositiveTest(TestCase):
@@ -216,7 +271,7 @@
             </section>
 
             <section data-markdown>
-                ## Cenário 3
+                ## Cenário 4
                 #### Ver informações de um evento, se usuário tiver permissão para essa operação.
 
                 ```python
@@ -246,7 +301,7 @@
 
 
             <section data-markdown>
-                ## Cenário 3
+                ## Cenário 4
 
                 ```python
                 class VerEventosTest(TestCase):
@@ -258,39 +313,6 @@
                     def test_nao_deve_mostrar_evento_se_usuario_nao_tiver_permissao(self):
                         with mock.patch('example.cenario3.tem_permissao', side_effect=NotPermission):
                             self.assertEqual(info_evento('pythonrio'), 'Você não tem permissão para essa operação')
-                ```
-            </section>
-
-            <section data-markdown>
-                ## Cenário 4
-                #### Remove uma lista de arquivos
-
-                ```python
-                def remove_files(files):
-                    for file in files:
-                        os.remove(file)
-
-                ```
-            </section>
-
-
-            <section data-markdown>
-                ## Cenário 4
-
-                ```python
-                class RemoveFilesTest(TestCase):
-
-                    def test_deve_remover_arquivos(self):
-                        lista_arquivos = ['abc.txt', 'xyz.txt', 'def.txt']
-                        with mock.patch.object(os, 'remove') as remove:
-                            remove_files(lista_arquivos)
-                            # Quantas vezes remove foi chamada
-                            self.assertEqual(3, remove.call_count)
-                            # Verifica argumentos passada a cada chamada
-                            self.assertEqual(
-                                [mock.call('abc.txt'), mock.call('xyz.txt'), mock.call('def.txt')],
-                                remove.call_args_list)
-
                 ```
             </section>
 
@@ -413,29 +435,29 @@
                 </section>
             </section>
 
-            <section data-markdown>
-                ## Concluir =D!
+            <section data-markdown class="fragments">
+                ## Usem mock
+                - Mas com moderação
+            </section>
+
+            <section>
+                <h3>http://bit.ly/slide_descomplicando_mock</h3>
+                <h3>http://bit.ly/github_descomplicando_mock</h3>
             </section>
 
             <section>
                 Dúvidas?
             </section>
 
+            <section>
+                Dissemine conhecimento
+            </section>
+
             <section data-markdown>
                 ## Obrigado!
 
-                // Deixar minhas redes aqui
+                <!-- // Deixar minhas redes aqui -->
             </section>
-
-<!--             <section data-background="#dddddd">
-                <h2>Slide Backgrounds</h2>
-                <p>
-                    Set <code>data-background="#dddddd"</code> on a slide to change the background color. All CSS color formats are supported.
-                </p>
-                <a href="#" class="navigate-down">
-                    <img width="178" height="238" data-src="https://s3.amazonaws.com/hakim-reveal-js/arrow.png" alt="Down arrow">
-                </a>
-            </section> -->
         </div>
     </div>
 <script src="lib/js/head.min.js"></script>
