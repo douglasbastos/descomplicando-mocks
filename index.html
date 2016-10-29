@@ -14,6 +14,10 @@
         .reveal ul {
             list-style-type: none;
         }
+        .logo-sieve{
+            border: 0 !important;
+            box-shadow:  none !important;
+        }
     </style>
 </head>
 <body>
@@ -29,16 +33,19 @@
             <section>
                 <h3>Quem sou</h3>
                 <p>Douglas Bastos</p>
-                <p>Programador python e outras modinhas</p>
-                <p>https://twitter.com/douglasbastosok</p>
-                <p>https://github.com/douglasbastos</p>
+                <p>Programador python e de outras modinhas</p>
                 <br/>
-                <p>Sieve</p>
+                <p>https://github.com/douglasbastos</p>
+                <p>https://twitter.com/douglasbastosok</p>
+                <p>https://medium.com/@douglasbastosok</p>
+                <br/>
+                <img class='logo-sieve' width="30%" height="100px"
+                    data-src="img/logo-sieve.png">
             </section>
 
             <section>
-                <h3>http://bit.ly/slide_descomplicando_mock</h3>
-                <h3>http://bit.ly/github_descomplicando_mock</h3>
+                <h3>http://bit.ly/slide_mock</h3>
+                <h3>http://bit.ly/github_mock</h3>
             </section>
 
             <section>
@@ -48,7 +55,7 @@
             <section>
                 <h2>Ciclo de desenvolvimento</h2>
                     <img width="100%" height="500px"
-                    data-src="img/ciclo-de-vida-software.jpg" alt="Down arrow">
+                    data-src="img/ciclo-de-vida-software.jpg">
             </section>
 
             <section data-markdown class="fragments">
@@ -71,16 +78,29 @@
                 - Criamos soluções para ajudar pessoas, por que não nos ajudar também?
             </section>
 
-            <section data-markdown class="fragments">
+            <section data-markdown>
                 ## Então temos que parar de fazer testes manuais?
-                - ### NÃO
-                - Mas deve ter a principal fatia na ciclo de execução de teste
             </section>
+
+            <section>
+                <img width="100%" height="500px"
+                data-src="img/nope-chewbacca.gif">
+            </section>
+
+            <section data-markdown>
+                ### Mas não pode ser a principal parte na fase de teste.
+            </section>
+
+            <section>
+                <h2>Então, vamos ver código</h2>
+                    <img width="100%" height="500px"
+                    data-src="img/entao-vamos-ver-codigo.gif">
+            </section>
+
 
             <section data-markdown class="fragments">
                 ## Cenários a seguir estão focados na execução de testes unitários
             </section>
-
 
             <section data-markdown>
                 ## Função soma
@@ -113,39 +133,22 @@
             </section>
 
             <section data-markdown class="fragments">
+                ## Problemas
+                - Tenho que criar arquivos de verdade no projeto
+                - Teste falhando antes da hora, arquivo criado permanecerá no projeto
+                - Posso acabar apagando um arquivo necessário.
+            </section>
+
+            <section data-markdown class="fragments">
                 ## Mock
             </section>
 
-            <section data-markdown>
-                ## Usando Mock - Cenário 1
-
-                ```python
-                class RemoveFilesTest(TestCase):
-
-                    def test_deve_remover_arquivos(self):
-                        lista_arquivos = ['abc.txt', 'xyz.txt', 'def.txt']
-                        with mock.patch.object(os, 'remove') as remove:
-                            remove_files(lista_arquivos)
-                            self.assertEqual(3, remove.call_count)
-                ```
-            </section>
-
-            <section data-markdown>
-                ## Console
-                ```
-                > import os
-                > os
-                module 'os' from '/home/douglas/.env/descomplicando-mocks/lib/python3.4/os.py'
-                ```
-
-                ```
-                > import os
-                > from mock import Mock
-
-                > os = Mock()
-                > os
-                MagicMock id='139775112511728'
-                ```
+            <section data-markdown class="fragments">
+                ## O que o mock faz
+                - Simula comportamento de objetos
+                - Isola dependências externas
+                - Possibilita asserções
+                - Menos Estado mais Colaboração (Foco no domínio)
             </section>
 
             <section data-markdown class="fragments">
@@ -168,12 +171,53 @@
                 ```
             </section>
 
-            <section data-markdown class="fragments">
-                ## O que o mock faz
-                - Simula comportamento de objetos
-                - Isola dependências externas
-                - Possibilita asserções
-                - Menos Estado mais Colaboração (Foco no domínio)
+            <section data-markdown>
+                ### Cenário 1
+                #### Remove uma lista de arquivos
+
+                ```python
+                def remove_files(files):
+                    for file in files:
+                        os.remove(file)
+                ```
+            </section>
+
+            <section data-markdown>
+                ## Usando Mock - Cenário 1
+
+                ```python
+                class RemoveFilesTest(TestCase):
+
+                    def test_deve_remover_arquivos(self):
+                        lista_arquivos = ['abc.txt', 'xyz.txt', 'def.txt']
+                        with mock.patch.object(os, 'remove') as remove:
+                            remove_files(lista_arquivos)
+                            self.assertEqual(3, remove.call_count)
+                ```
+            </section>
+
+            <section>
+                <h2>Mas como?</h2>
+                    <img width="100%" height="500px"
+                    data-src="img/confused.gif">
+            </section>
+
+            <section data-markdown>
+                ## Console
+                ```
+                > from os import remove
+                > remove
+                function posix.remove
+                ```
+
+                ```
+                > from os import remove
+                > from unittest.mock import Mock
+
+                > remove = Mock()
+                > remove
+                MagicMock id='139775112511728'
+                ```
             </section>
 
             <section data-markdown>
@@ -181,7 +225,7 @@
                 ```python
                 class RemoveFilesTest(TestCase):
 
-                    @with mock.patch.object(os, 'remove'):
+                    @mock.patch.object(os, 'remove'):
                     def test_deve_remover_arquivos(self, remove):
                         lista_arquivos = ['abc.txt', 'xyz.txt', 'def.txt']
                         remove_files(lista_arquivos)
@@ -195,7 +239,7 @@
                 class RemoveFilesUsingPatchTest(TestCase):
 
                     def setUp(self):
-                        self.remove_patcher = with mock.patch.object(os, 'remove')
+                        self.remove_patcher = mock.patch.object(os, 'remove')
                         self.remove = self.remove_patcher.start()
 
                     def tearDown(self):
@@ -214,8 +258,15 @@
                 #### Enviar conteúdo para aws
                 ```python
                 def enviar_conteudo_aws(filename, body):
-                    upload_aws(filename, body)
+                    boto3.send(filename, body)
                 ```
+            </section>
+
+            <section  data-markdown class="fragments">
+                ## Problemas
+                - Necessidade de acesso à internet
+                - Configuração válida com aws
+                - Todos testes enviaram arquivos de verdade para aws
             </section>
 
             <section data-markdown>
@@ -223,19 +274,22 @@
                 ```python
                 class SendContentTeste(TestCase):
 
-                    def test_send_content(self):
-                        with mock.patch('example.cenario1.upload_aws') as upload_aws:
-                            send_content('helloword.txt', 'Hello Word')
-                            upload_aws.assert_called_with('helloword.txt', 'Hello Word')
+                    def test_enviar_conteudo_aws(self):
+                        with mock.patch('example.cenario1.boto3') as qualquer_coisa:
+                            enviar_conteudo_aws('helloword.txt', 'Hello Word')
+                            qualquer_coisa.send.assert_called_with('helloword.txt', 'Hello Word')
                 ```
             </section>
 
             <section data-markdown>
-                ```python
-                mock.patch('example.cenario1.upload_aws')
-                ```
+                Mock realizado no objeto chamável
                 ```python
                 mock.patch.object(os, 'remove')
+                ```
+
+                Mock realizado no objeto que faz o chamada
+                ```python
+                mock.patch('example.cenario2.os.remove')
                 ```
             </section>
 
@@ -245,12 +299,17 @@
 
                 ```python
                 def is_positive(key):
-                    if get_value(key) >= 1:
+                    if redis.get(key) >= 1:
                         return True
                     return False
                 ```
             </section>
 
+            <section  data-markdown class="fragments">
+                ## Problemas
+                - Necessidade do redis instalado
+                - Inserção de valores no redis
+            </section>
 
             <section data-markdown>
                 ## Cenário 3
@@ -259,12 +318,12 @@
                 class IsNumberPositiveTest(TestCase):
 
                     def test_deve_retornar_true_quando_numero_positivo(self):
-                        with mock.patch('example.cenario2.get_value', return_value=4):
+                        with mock.patch.object(redis, 'get', return_value=4):
                             result = is_positive('key')
                             self.assertTrue(result)
 
                     def test_deve_retornar_false_quando_numero_nao_for_positivo(self):
-                        with mock.patch('example.cenario2.get_value', return_value=-4):
+                        with mock.patch.object(redis, 'get', return_value=-4):
                             result = is_positive('key')
                             self.assertFalse(result)
                 ```
@@ -272,25 +331,18 @@
 
             <section data-markdown>
                 ## Cenário 4
-                #### Ver informações de um evento, se usuário tiver permissão para essa operação.
+                #### Ver informações de um evento. Dependendo dos privilégios os usuários.
 
                 ```python
-                def tem_permissao(user, permissao):
-                    user = UserHasPermission.objects.filter(user=user, permissao=permissao)
-                    if user:
-                        return True
-                    else:
-                        raise NotPermission
-
-
                 def info_evento(key):
                     events = {'pythonrio': 'Rio de Janeiro',
                               'pythonbrasil2016': 'Florianópolois',
                               'pythonbrasil2017': 'Belo Horizonte',
                               'pythonsudeste2017': 'Rio de Janeiro'}
                     try:
-                        permissao = tem_permissao(user='douglasbastos',
-                                                  permissao='ver_eventos')
+                        # Retorna True ou NotPermission
+                        permissao = tem_permissao(user='douglas', permissao='ver_eventos')
+
                         if permissao:
                             return events.get(key, 'Nenhum evento encontrado')
                     except Exception:
@@ -299,6 +351,10 @@
                 ```
             </section>
 
+            <section  data-markdown class="fragments">
+                ## Problemas
+                - Criar usuário e permissão para usuário
+            </section>
 
             <section data-markdown>
                 ## Cenário 4
@@ -307,12 +363,14 @@
                 class VerEventosTest(TestCase):
 
                     def test_deve_mostrar_evento_se_usuario_tiver_permissao(self):
-                        with mock.patch('example.cenario3.tem_permissao', return_value=True):
-                            self.assertEqual(info_evento('pythonrio'), 'Rio de Janeiro')
+                        with mock.patch('example.cenario4.tem_permissao', return_value=True):
+                            result = info_evento('pythonrio')
+                            self.assertEqual(result, 'Rio de Janeiro')
 
                     def test_nao_deve_mostrar_evento_se_usuario_nao_tiver_permissao(self):
-                        with mock.patch('example.cenario3.tem_permissao', side_effect=NotPermission):
-                            self.assertEqual(info_evento('pythonrio'), 'Você não tem permissão para essa operação')
+                        with mock.patch('example.cenario4.tem_permissao', side_effect=NotPermission):
+                            result = info_evento('pythonrio')
+                            self.assertEqual(result, 'Você não tem permissão para essa operação')
                 ```
             </section>
 
@@ -335,7 +393,7 @@
 
                 <section data-markdown>
                 ##### Mais detalhes
-                [Documentação do Mock](https://docs.python.org/3/library/unittest.mock.html)
+                [https://docs.python.org/3/library/unittest.mock.html](https://docs.python.org/3/library/unittest.mock.html)
                 </section>
             </section>
 
@@ -387,9 +445,11 @@
                 ## Cenário 6
 
                 ```python
-                def pega_informacoes_usuario_github(username):
-                    url_api = 'https://api.github.com/users/{}'.format(username)
+                def pega_informacoes_usuario_github():
+                    url_api = 'https://api.github.com/users/douglas')
+
                     response = requests.get(url_api)
+
                     if response.status_code == 200:
                         content = json.loads(response.content.decode('utf-8'))
                         return content
@@ -411,11 +471,12 @@
 
                     @responses.activate
                     def test_deve_retornar_informacoes_do_usuario_caso_ele_exista(self):
-                        info = {'location': 'Rio de Janeiro'}
                         url_api = 'https://api.github.com/users/douglas'
-                        responses.add(responses.GET, url_api, json=info, status=200)
+                        body = '{'location': 'Rio de Janeiro'}'
 
-                        result = pega_informacoes_usuario_github('douglas')
+                        responses.add(responses.GET, url_api, body=info, status=200)
+
+                        result = pega_informacoes_usuario_github()
                         self.assertDictEqual(result, info)
                 ```
                 </section>
@@ -424,12 +485,12 @@
                 ```
                     @responses.activate
                     def test_deve_retornar_mensagem_de_nao_encontrado_caso_usuario_nao_exista(self):
-                        username = 'douglasbastos'
                         url_api = 'https://api.github.com/users/douglas'
-                        responses.add(responses.GET, url_api,
-                                      body='{"error": "not found"}', status=404)
+                        body='{"error": "not found"}'
 
-                        result = pega_informacoes_usuario_github('douglas')
+                        responses.add(responses.GET, url_api, body=body, status=404)
+
+                        result = pega_informacoes_usuario_github()
                         self.assertEqual(result, 'Usuário não existe')
                 ```
                 </section>
@@ -441,8 +502,8 @@
             </section>
 
             <section>
-                <h3>http://bit.ly/slide_descomplicando_mock</h3>
-                <h3>http://bit.ly/github_descomplicando_mock</h3>
+                <h3>http://bit.ly/slide_mock</h3>
+                <h3>http://bit.ly/github_mock</h3>
             </section>
 
             <section>
@@ -453,10 +514,12 @@
                 Dissemine conhecimento
             </section>
 
-            <section data-markdown>
-                ## Obrigado!
+            <section>
+                <h2>Obrigado!</h2>
 
-                <!-- // Deixar minhas redes aqui -->
+                <p>https://github.com/douglasbastos</p>
+                <p>https://twitter.com/douglasbastosok</p>
+                <p>https://medium.com/@douglasbastosok</p>
             </section>
         </div>
     </div>
@@ -472,7 +535,7 @@
 
         theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
         // transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
-        transition: 'zoom',
+        transition: 'slide',
 
         // Parallax scrolling
         // parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
