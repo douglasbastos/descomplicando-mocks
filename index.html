@@ -43,13 +43,15 @@
                     data-src="img/logo-sieve.png">
             </section>
 
-            <section>
-                <h3>http://bit.ly/slide_mock</h3>
-                <h3>http://bit.ly/github_mock</h3>
+            <section data-markdown>
+                Slide
+                ### http://bit.ly/slide_mock
+                Código
+                ### http://bit.ly/github_mock
             </section>
 
             <section>
-                <h3>Por que falar sobre testes e mocks</h3>
+                <h3>Por que falar sobre testes e mocks?</h3>
             </section>
 
             <section>
@@ -190,9 +192,9 @@
 
                     def test_deve_remover_arquivos(self):
                         lista_arquivos = ['abc.txt', 'xyz.txt', 'def.txt']
-                        with mock.patch.object(os, 'remove') as remove:
+                        with mock.patch.object(os, 'remove') as qualquercoisa:
                             remove_files(lista_arquivos)
-                            self.assertEqual(3, remove.call_count)
+                            self.assertEqual(3, qualquercoisa.call_count)
                 ```
             </section>
 
@@ -226,10 +228,10 @@
                 class RemoveFilesTest(TestCase):
 
                     @mock.patch.object(os, 'remove'):
-                    def test_deve_remover_arquivos(self, remove):
+                    def test_deve_remover_arquivos(self, qualquercoisa):
                         lista_arquivos = ['abc.txt', 'xyz.txt', 'def.txt']
                         remove_files(lista_arquivos)
-                        self.assertEqual(3, remove.call_count)
+                        self.assertEqual(3, qualquercoisa.call_count)
                 ```
             </section>
 
@@ -277,7 +279,7 @@
                     def test_enviar_conteudo_aws(self):
                         with mock.patch('example.cenario1.boto3') as qualquer_coisa:
                             enviar_conteudo_aws('helloword.txt', 'Hello Word')
-                            qualquer_coisa.send.assert_called_with('helloword.txt', 'Hello Word')
+                            qualquer_coisa.send.assert_called
                 ```
             </section>
 
@@ -354,6 +356,7 @@
             <section  data-markdown class="fragments">
                 ## Problemas
                 - Criar usuário e permissão para usuário
+                - Dependência externa de outra função
             </section>
 
             <section data-markdown>
@@ -417,6 +420,11 @@
                 ```
             </section>
 
+            <section  data-markdown class="fragments">
+                ## Problema
+                - Lógica é feita pela hora atual
+            </section>
+
             <section data-markdown>
                 pip install freezegun
             </section>
@@ -446,9 +454,7 @@
 
                 ```python
                 def pega_informacoes_usuario_github():
-                    url_api = 'https://api.github.com/users/douglas')
-
-                    response = requests.get(url_api)
+                    response = requests.get('https://api.github.com/users/douglas')
 
                     if response.status_code == 200:
                         content = json.loads(response.content.decode('utf-8'))
@@ -456,6 +462,14 @@
                     else:
                         return 'Usuário não existe'
                 ```
+            </section>
+
+            <section  data-markdown class="fragments">
+                ## Problema
+                - Necessidade de acesso à internet
+                - Request de verdade
+                - Usuário do testes deixar de existir, teste quebra
+                - Informações do usuário alterada, teste quebra
             </section>
 
             <section data-markdown>
@@ -501,17 +515,19 @@
                 - Mas com moderação
             </section>
 
-            <section>
-                <h3>http://bit.ly/slide_mock</h3>
-                <h3>http://bit.ly/github_mock</h3>
+            <section data-markdown>
+                Slide
+                ### http://bit.ly/slide_mock
+                Código
+                ### http://bit.ly/github_mock
             </section>
 
             <section>
                 Dúvidas?
             </section>
 
-            <section>
-                Dissemine conhecimento
+            <section data-markdown>
+                ## Dissemine conhecimento
             </section>
 
             <section>
