@@ -1,6 +1,3 @@
-pytest
-responses
 requests
+responses
 freezegun
-ipdb
-ipython
